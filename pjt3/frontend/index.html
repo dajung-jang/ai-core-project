@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>서핑 플래너</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <h1>🏄 서핑 플래너</h1>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="chat" role="tab">대화</button>
+        <button class="tab" data-tab="plans" role="tab">계획 관리</button>
+        <button class="tab" data-tab="logs" role="tab">실행 로그</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="health" class="notice warn" hidden></div>
+
+    <!-- 대화 화면 -->
+    <section id="view-chat" class="view">
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="empty" id="chat-empty">
+          <p>날짜와 지역, 서핑 경험 수준을 알려 주세요. 파고와 바람을 확인해 서핑하기 좋은 곳을 추천해 드려요.</p>
+          <div class="chips" id="examples"></div>
+        </div>
+      </div>
+      <form id="chat-form" class="composer" autocomplete="off">
+        <input id="chat-input" type="text" maxlength="500" placeholder="예) 토요일 오전에 양양에서 초보가 탈 만한 곳 찾아줘" aria-label="메시지">
+        <button id="chat-send" type="submit">보내기</button>
+        <button id="chat-new" type="button" class="ghost" title="대화를 처음부터 다시 시작">새 대화</button>
+      </form>
+    </section>
+
+    <!-- 계획 관리 화면 -->
+    <section id="view-plans" class="view" hidden>
+      <div class="view-head"><h2>저장한 계획</h2><button id="plans-refresh" class="ghost">새로고침</button></div>
+      <div id="plans-msg" class="notice" hidden></div>
+      <div id="plans-list" class="cards"></div>
+    </section>
+
+    <!-- 실행 로그 화면 -->
+    <section id="view-logs" class="view" hidden>
+      <div class="view-head"><h2>실행 로그</h2><button id="logs-refresh" class="ghost">새로고침</button></div>
+      <div id="logs-msg" class="notice" hidden></div>
+      <div id="logs-list" class="cards"></div>
+      <div id="log-detail" class="detail" hidden></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

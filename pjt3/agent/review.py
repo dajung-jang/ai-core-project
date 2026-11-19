@@ -53,7 +53,7 @@ def judge(state):
     candidates, excluded = J.rank(judgments)
     bus.emit(state["session_id"], bus.JUDGE_RESULT, {
         "region": region, "level": level,
-        "spots": [{k: j[k] for k in ("spot_id", "grade", "reasons", "warnings", "wave_max_m", "wind_max_ms")}
+        "spots": [{k: j[k] for k in ("spot_id", "name", "grade", "reasons", "warnings", "wave_max_m", "wind_max_ms")}
                   for j in new],
         "candidates": [j["spot_id"] for j in candidates]})
     return {"judgments": judgments, "candidates": candidates, "excluded": excluded,
