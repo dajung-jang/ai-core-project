@@ -1,7 +1,7 @@
 """판단 이후 단계: judge(수식) -> places(보조 정보) -> replan(규칙)"""
 import config
 from agent import judge as J
-from agent.nodes import _execute, build_tasks, traced
+from agent.nodes import _execute, build_tasks, chain_beach_args, traced
 from agent.state import cache_key
 from events import bus
 from spots import SPOTS
@@ -26,7 +26,8 @@ def judge(state):
     level = c.get("level") or "초보"
     wave_task, beach_task = build_tasks(c, region)
     wave_e = state["tool_cache"].get(cache_key(wave_task["tool"], wave_task["args"]), {})
-    beach_e = state["tool_cache"].get(cache_key(beach_task["tool"], beach_task["args"]), {})
+    beach_args = chain_beach_args(beach_task["args"], wave_e)  # work 단계에서 실제로 호출한 입력과 같은 값
+    beach_e = state["tool_cache"].get(cache_key(beach_task["tool"], beach_args), {})
 
     new = []
     for spot in [s for s in SPOTS if s["region"] == region]:

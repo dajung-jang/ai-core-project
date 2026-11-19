@@ -231,19 +231,33 @@ def _run_tool(sid, tool, args):
     return result, ms, 2
 
 
+def chain_beach_args(args, wave_entry):
+    """파고 조회가 돌려준 스팟만 해변 날씨 Tool의 입력으로 넘긴다."""
+    if wave_entry and wave_entry.get("ok"):
+        ids = list(wave_entry["summary"]["spots"])
+        if ids:
+            return {**args, "spot_ids": ids}
+    return args
+
+
 def _execute(state, tasks):
     """작업 목록을 순서대로 실행해 상태 갱신분을 돌려준다. 이미 받은 결과는 다시 부르지 않는다."""
     sid = state["session_id"]
     cache = dict(state.get("tool_cache", {}))
     log = list(state.get("tool_log", []))
     fatal = None
+    last_wave = None  # 직전 파고 조회 결과 (다음 Tool의 입력으로 전달)
     for task in tasks:
         tool, args = task["tool"], task["args"]
+        if tool == "get_beach_weather":
+            args = chain_beach_args(args, last_wave)
         key = cache_key(tool, args)
         entry = {"tool": tool, "args": args, "replan_count": state.get("replan_count", 0)}
         if cache.get(key, {}).get("ok"):
             log.append({**entry, "ok": True, "cached": True, "elapsed_ms": 0, "error_code": None})
             bus.emit(sid, bus.TOOL_RESPONSE, {"tool": tool, "cached": True, "ok": True})
+            if tool == "get_wave_forecast":
+                last_wave = cache[key]
             continue
         result, ms, attempts = _run_tool(sid, tool, args)
         if result["ok"]:
@@ -256,6 +270,8 @@ def _execute(state, tasks):
             if err["code"] in NON_RETRYABLE:  # 키 누락·인증·입력 오류는 재계획해도 소용없다
                 fatal = err
                 break
+        if tool == "get_wave_forecast":
+            last_wave = cache[key]
     return {"tool_cache": cache, "tool_log": log, "fatal_error": fatal}
 
 

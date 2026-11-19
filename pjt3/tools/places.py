@@ -14,6 +14,14 @@ DEFAULT_SIZE = 5
 MAX_SIZE = 10
 
 
+def _is_quota_error(r):
+    """카카오는 쿼터를 넘으면 HTTP 400과 에러 코드 -10으로 응답하기도 한다."""
+    try:
+        return r.json().get("code") == -10
+    except (ValueError, AttributeError):
+        return False
+    
+
 @register_tool(
     name="search_places",
     description=(
@@ -67,7 +75,7 @@ def search_places(spot_id, category, size=None):
         return fail(ErrorCode.AUTH_ERROR, "장소 검색 API 키가 올바르지 않습니다.")
     if r.status_code == 403:
         return fail(ErrorCode.AUTH_ERROR, "장소 검색 API 사용 권한이 없습니다(카카오맵 사용 설정을 확인하세요).")
-    if r.status_code == 429:
+    if r.status_code == 429 or (r.status_code == 400 and _is_quota_error(r)):
         return fail(ErrorCode.RATE_LIMITED, "장소 검색 호출 한도를 초과했습니다.")
     if r.status_code == 400:
         return fail(ErrorCode.INVALID_INPUT, "장소 검색 요청 값이 올바르지 않습니다.")

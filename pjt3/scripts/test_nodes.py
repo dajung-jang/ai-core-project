@@ -90,6 +90,21 @@ s8 = new_state("t8", "x", conditions=c); s8["task_queue"] = nodes.build_tasks(c,
 s8.update(nodes.work(s8))
 assert s8["fatal_error"]["code"] == "MISSING_KEY" and len(s8["tool_log"]) == 1   # 즉시 중단
 
+# 7) 파고 조회가 돌려준 spot_id가 해변 날씨 Tool의 입력이 된다 (계획에는 3곳이 있어도 파고 결과의 2곳만 넘어간다)
+seen = {}
+TOOL_REGISTRY["get_wave_forecast"]["func"] = lambda region, date, start_time=None, end_time=None: ok(
+    {"region": region, "date": date, "window": {}, "spots": [
+        {"spot_id": "yy_jukdo", "name": "양양 죽도", "max_wave_height_m": 0.5},
+        {"spot_id": "yy_ingu", "name": "양양 인구", "max_wave_height_m": 0.5}]})
+def beach_spy(spot_ids, date, start_time=None, end_time=None):
+    seen["ids"] = list(spot_ids)
+    return ok({"date": date, "window": {}, "spots": [{"spot_id": i, "name": i, "max_wind_speed_ms": 3.0} for i in spot_ids]})
+TOOL_REGISTRY["get_beach_weather"]["func"] = beach_spy
+s9 = new_state("t9", "x", conditions=c); s9["task_queue"] = nodes.build_tasks(c, "양양")
+assert len(s9["task_queue"][1]["args"]["spot_ids"]) == 3
+s9.update(nodes.work(s9))
+assert seen["ids"] == ["yy_jukdo", "yy_ingu"] and s9["tool_log"][1]["args"]["spot_ids"] == seen["ids"]
+
 types = {e["type"] for e in events}
 assert {"step_start", "step_end", "tool_request", "tool_response", "error"} <= types
 ends = [e for e in events if e["type"] == "step_end" and e["payload"]["step"] == "analyze" and e["session_id"] == "t1"]
