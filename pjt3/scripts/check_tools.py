@@ -56,7 +56,7 @@ def main():
 
     # 4단계: 제약 판단에 쓸 값 모아보기 (판단 자체는 Agent 단계에서 구현)
     wind = {s["spot_id"]: s for s in beach["data"]["spots"]}
-    print("\n스팟별 판단 재료 (제약 판단은 아직 구현 전)")
+    print("\n스팟별 판단 재료 (Tool 결과 확인용 출력. 판단은 agent/judge.py에서 수행)")
     print(f"{'스팟':<12}{'최대 파고(m)':<14}{'최대 풍속(m/s)':<16}비고")
     for s in spots:
         w = wind.get(s["spot_id"], {})

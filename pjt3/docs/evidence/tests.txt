@@ -1,0 +1,16 @@
+]633;E;for t in judge state store nodes graph save places_quota api\x3b do echo "== test_$t =="\x3b PYTHONUTF8=1 python -m scripts.test_$t\x3b done > docs/evidence/tests.txt 2>&1;3aa5de9c-6ae7-4f6c-9912-c38c6dd6cd08]633;C== test_judge ==
+모든 테스트 통과
+== test_state ==
+모든 테스트 통과
+== test_store ==
+모든 테스트 통과
+== test_nodes ==
+모든 테스트 통과
+== test_graph ==
+모든 테스트 통과
+== test_save ==
+모든 테스트 통과
+== test_places_quota ==
+모든 테스트 통과
+== test_api ==
+모든 테스트 통과

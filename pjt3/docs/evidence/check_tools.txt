@@ -1,0 +1,13 @@
+요청 분석 결과(고정): 지역=양양, 날짜=2026-11-21, 시각=기본값, 제약=14:00 전 종료(Tool 인자 아님)
+
+등록된 Tool: ['get_beach_weather', 'search_places', 'get_wave_forecast'] 
+
+[OK] get_wave_forecast -> 후보 3곳 ['yy_jukdo', 'yy_ingu', 'yy_gisamun']
+[OK] get_beach_weather <- get_wave_forecast의 spot_id 3개를 입력으로 사용
+[OK] search_places <- yy_jukdo -> ['서프랩', '양양서핑 핀스서프', '핀스서프']
+
+스팟별 판단 재료 (Tool 결과 확인용 출력. 판단은 agent/judge.py에서 수행)
+스팟          최대 파고(m)      최대 풍속(m/s)      비고
+양양 죽도       0.9           7.8             
+양양 인구       0.9           7.8             
+양양 기사문      0.9           8.3             

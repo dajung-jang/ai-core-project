@@ -57,27 +57,48 @@
 | `start_time` | string | | `HH:MM`, 기본 06:00 |
 | `end_time` | string | | `HH:MM`, 기본 12:00 |
 
-**출력(`data`)** — Agent가 쓰는 핵심 필드:
+**출력(`data`)**
 
 ```json
 {"region": "양양", "date": "2026-11-21", "window": {"start": "06:00", "end": "12:00"},
- "spots": [{"spot_id": "yy_jukdo", "name": "양양 죽도", "max_wave_height_m": 0.5, "...": "..."}]}
+ "source": "Open-Meteo Marine",
+ "note": "같은 격자를 쓰는 스팟은 파고 예보 값이 동일합니다.",
+ "spots": [
+   {"spot_id": "yy_jukdo", "name": "양양 죽도", "beach_num": 250,
+    "grid": {"lat": 37.97, "lon": 128.76},
+    "hourly": [{"time": "06:00", "wave_height_m": 0.9,
+                "wave_period_s": 7.1, "wave_direction_deg": 62}],
+    "max_wave_height_m": 0.9}
+ ]}
 ```
 
-> 전체 필드는 `tools/wave.py`의 반환 부분을 기준으로 합니다. 위는 `_summarize`가 읽는 필드입니다. 같은 지역 스팟은 같은 격자의 값을 쓸 수 있습니다.
+| 필드 | 설명 |
+|---|---|
+| `spots[].spot_id`, `name`, `beach_num` | 후보 스팟 정보 (`spots.py`) |
+| `spots[].grid` | Open-Meteo가 실제로 사용한 격자 좌표 |
+| `spots[].hourly[]` | 조회 시간대의 시간별 파고(m), 주기(s), 방향(도) |
+| `spots[].max_wave_height_m` | 조회 시간대 안의 최대 파고. 값이 없으면 `null` |
+| `source`, `note` | 출처와 안내(같은 격자를 쓰는 스팟은 값이 같음) |
+
+Agent는 이 중 `spot_id`, `name`, `max_wave_height_m`만 요약해서 사용합니다(`agent/nodes.py`의 `_summarize`). 예시의 숫자는 형식을 보여 주는 값이며 실제 예보값이 아닙니다.
 
 **실패 케이스**
 
-| 상황 | 코드 | 메시지 성격 |
+| 상황 | 코드 | 안내 메시지 |
 |---|---|---|
-| 지원하지 않는 지역 / 날짜·시각 형식 오류 | `INVALID_INPUT` | 올바른 형식 안내 |
-| 연결 실패·서버 오류 | `HTTP_ERROR` | 연결하지 못함 |
-| 한도 초과(429) | `RATE_LIMITED` | 한도 초과 |
-| 응답 해석 실패 | `PARSE_ERROR` | 해석 실패 |
-| 해당 시간대 값 없음 | `NO_DATA` | 데이터 없음 |
+| 지원하지 않는 지역 | `INVALID_INPUT` | 지원하는 지역은 (지역 목록)입니다. |
+| 날짜 형식이 `YYYY-MM-DD`가 아님 | `INVALID_INPUT` | 날짜는 YYYY-MM-DD 형식이어야 합니다. |
+| 시각이 `HH:MM`이 아니거나 시작이 종료보다 늦음 | `INVALID_INPUT` | 시각은 HH:MM 형식이며 시작이 종료보다 빨라야 합니다. |
+| 서버에 연결하지 못함 | `HTTP_ERROR` | 파고 예보 서버에 연결하지 못했습니다. |
+| HTTP 429 (호출 한도 초과) | `RATE_LIMITED` | 파고 예보 호출 한도를 초과했습니다. |
+| HTTP 400 (요청 값 오류) | `INVALID_INPUT` | 요청 값이 올바르지 않다는 안내 |
+| 그 외 비정상 상태 코드나 응답 안의 `error` 필드 | `HTTP_ERROR` | 파고 예보 서버에서 오류가 발생했습니다. |
+| 응답을 JSON으로 해석하지 못함 | `PARSE_ERROR` | 파고 예보 응답을 해석하지 못했습니다. |
+| 응답의 지점 수가 요청한 스팟 수와 다름 | `PARSE_ERROR` | 파고 예보 응답의 지점 수가 요청과 다릅니다. |
+| 응답에 시간별 값이 없음 | `PARSE_ERROR` | 파고 예보 응답에 시간별 값이 없습니다. |
+| 모든 스팟의 최대 파고 값이 없음 (일부 스팟만 없으면 max_wave_height_m: null로 반환) | NO_DATA | 해당 시간대의 파고 예보 값이 없습니다. |
 
-> 자세한 분기 조건은 `tools/wave.py`와 `scripts/check_tools.py` 실행 결과로 확인하세요.
-
+이 Tool은 API 키가 필요 없어서 `MISSING_KEY`와 `AUTH_ERROR`는 발생하지 않는다.
 ---
 
 ## 3. get_beach_weather — 해변 날씨 (F3003, `tools/beach.py`)

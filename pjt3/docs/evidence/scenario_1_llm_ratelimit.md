@@ -1,6 +1,6 @@
 # 시나리오 1. 제약을 한 번에 충족하는 요청
 
-- 실행 시각: 2026-11-19 20:40:31
+- 실행 시각: 2026-11-20 09:04:01
 - 세션 id: `evidence-s1` (화면의 '실행 로그' 탭에서도 볼 수 있음)
 - 기대한 동작: 부산 안에서 후보가 나와 재계획 없이 끝난다 (날씨가 기준을 넘는 날이면 달라질 수 있음)
 
@@ -11,7 +11,7 @@
 - 의도: `None` — None
 - 추출된 조건: `{"date": null, "start_time": null, "end_time": null, "region": null, "level": null, "end_by": null, "wants_places": []}`
 - 시도한 지역: [] / 재계획 0회
-- 처리 시간: 2.8초 / LLM 호출 1회
+- 처리 시간: 3.5초 / LLM 호출 1회
 
 ### 최종 응답
 
@@ -36,7 +36,7 @@
 | seq | type | 내용 |
 |---|---|---|
 | 2 | error |  |
-| 3 | step_end | analyze 2801ms |
+| 3 | step_end | analyze 3494ms |
 | 5 | step_end | respond 0ms |
 
 <details><summary>원본 이벤트 JSON</summary>
@@ -45,7 +45,7 @@
 [
  {
   "seq": 1,
-  "ts": "2026-11-19T20:40:28.643+09:00",
+  "ts": "2026-11-20T09:03:57.586+09:00",
   "type": "step_start",
   "payload": {
    "step": "analyze"
@@ -53,7 +53,7 @@
  },
  {
   "seq": 2,
-  "ts": "2026-11-19T20:40:31.442+09:00",
+  "ts": "2026-11-20T09:04:01.079+09:00",
   "type": "error",
   "payload": {
    "step": "analyze",
@@ -62,18 +62,18 @@
  },
  {
   "seq": 3,
-  "ts": "2026-11-19T20:40:31.445+09:00",
+  "ts": "2026-11-20T09:04:01.084+09:00",
   "type": "step_end",
   "payload": {
    "step": "analyze",
-   "elapsed_ms": 2801,
+   "elapsed_ms": 3494,
    "intent": null,
    "reason": "LLM 호출 실패"
   }
  },
  {
   "seq": 4,
-  "ts": "2026-11-19T20:40:31.449+09:00",
+  "ts": "2026-11-20T09:04:01.084+09:00",
   "type": "step_start",
   "payload": {
    "step": "respond"
@@ -81,7 +81,7 @@
  },
  {
   "seq": 5,
-  "ts": "2026-11-19T20:40:31.451+09:00",
+  "ts": "2026-11-20T09:04:01.095+09:00",
   "type": "step_end",
   "payload": {
    "step": "respond",

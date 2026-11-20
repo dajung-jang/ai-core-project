@@ -80,5 +80,18 @@ def main():
             print("[결과] Tool 호출 없음. 응답:", msg.content)
 
 
+"""LLM(GMS) 호출만 따로 점검한다: python -m scripts.check_llm"""
+import config
+from agent import llm
+
+print("GMS_KEY 설정됨:", bool(config.GMS_KEY))
+print("GMS_BASE_URL:", config.GMS_BASE_URL)
+print("LLM_MODEL:", config.LLM_MODEL)
+try:
+    print("응답:", llm.chat([{"role": "user", "content": "안녕이라고만 답해줘"}]))
+except Exception as e:
+    print("오류 종류:", type(e).__name__)
+    print("오류 내용:", e)
+    
 if __name__ == "__main__":
     main()
