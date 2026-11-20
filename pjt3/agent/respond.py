@@ -12,6 +12,22 @@ SOURCES = ("출처: 파고 예보 Open-Meteo Marine(NOAA·ECMWF·DWD·Copernicus
            "주변 장소 카카오 로컬")
 
 
+UNSUPPORTED = {  # 이 서비스가 조회하지 못하는 정보: 안내에 쓸 이름 -> 사용자 메시지의 키워드
+    "물때(조위)": ("물때", "조위", "조석", "만조", "간조"),
+    "이안류": ("이안류",),
+    "해파리": ("해파리",),
+}
+
+
+def _unsupported_text(message):
+    """사용자가 물었지만 Tool로 확인할 수 없는 정보는 지어내지 않고 못 다룬다고 밝힌다."""
+    names = [n for n, words in UNSUPPORTED.items() if any(w in (message or "") for w in words)]
+    if not names:
+        return None
+    return (f"참고: {', '.join(names)} 정보는 이 서비스에서 조회하지 못해 판단에 반영하지 않았어요. "
+            "현장 안전요원이나 기상청 같은 공식 안내를 직접 확인하세요.")
+
+
 def _window_text(c):
     start = c.get("start_time") or wave.DEFAULT_START
     end = effective_end(c) or wave.DEFAULT_END
@@ -96,6 +112,9 @@ def build_answer(state):
         out.append("\n제외한 곳")
         for j in excluded:
             out.append(f"- {j['name']}: " + " / ".join(j["reasons"]))
+    note = _unsupported_text(state.get("user_message"))
+    if note:
+        out.append("\n" + note)        
     out.append("\n판단 기준\n" + _criteria_text(level))
     out.append("파고는 지역 단위 예보라 같은 격자의 스팟은 값이 같아요. 같은 날 먼 시간대는 예보 정확도가 떨어질 수 있어요.")
     out.append("\n" + DISCLAIMER + "\n" + SOURCES)

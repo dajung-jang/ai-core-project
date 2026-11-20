@@ -14,6 +14,13 @@
 - 모든 Tool 함수에 `@safe_tool`을 적용해 **예외가 밖으로 새지 않고** `UNKNOWN`으로 변환됩니다.
 - 오류 메시지에는 키 값·내부 경로를 담지 않습니다.
 
+### Tool 구분
+
+| 구분 | 설명 | 이 프로젝트의 Tool |
+|---|---|---|
+| 외부 API 툴 | 외부 API를 감싼 Tool | `get_wave_forecast`(Open-Meteo), `get_beach_weather`(기상청), `search_places`(카카오 로컬) |
+| 로컬 서버 API 툴 | 이 서비스 서버의 기능을 감싼 Tool(일정, 문서 검색 등. 심화) | 없음 (심화 미선택, 계획 저장은 Tool이 아니라 실행 흐름의 `save` 노드가 직접 수행) |
+
 ### 오류 코드
 
 | 코드 | 의미 | Agent의 처리 |
@@ -53,7 +60,7 @@
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---|---|
 | `region` | string | ✅ | 지역 이름 (지원 목록 중 하나) |
-| `date` | string | ✅ | `YYYY-MM-DD` (누락 시 되묻도록 Agent가 막음) |
+| `date` | string | |YYYY-MM-DD. **없으면 오늘(한국 시간)로 조회**하고 응답에 밝힘 |
 | `start_time` | string | | `HH:MM`, 기본 06:00 |
 | `end_time` | string | | `HH:MM`, 기본 12:00 |
 
@@ -79,6 +86,7 @@
 | `spots[].hourly[]` | 조회 시간대의 시간별 파고(m), 주기(s), 방향(도) |
 | `spots[].max_wave_height_m` | 조회 시간대 안의 최대 파고. 값이 없으면 `null` |
 | `source`, `note` | 출처와 안내(같은 격자를 쓰는 스팟은 값이 같음) |
+| `date_defaulted` | 날짜를 받지 못해 오늘로 조회했으면true |
 
 Agent는 이 중 `spot_id`, `name`, `max_wave_height_m`만 요약해서 사용합니다(`agent/nodes.py`의 `_summarize`). 예시의 숫자는 형식을 보여 주는 값이며 실제 예보값이 아닙니다.
 

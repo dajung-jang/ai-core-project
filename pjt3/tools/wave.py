@@ -27,17 +27,23 @@ TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
         "type": "object",
         "properties": {
             "region": {"type": "string", "enum": REGIONS, "description": "조회할 지역"},
-            "date": {"type": "string", "description": "조회 날짜 YYYY-MM-DD"},
+            "date": {"type": "string", "description": "조회 날짜 YYYY-MM-DD (없으면 오늘 날짜로 조회)"},
             "start_time": {"type": "string", "description": "시작 시각 HH:MM (사용자가 말한 경우만)"},
             "end_time": {"type": "string", "description": "종료 시각 HH:MM (사용자가 말한 경우만)"},
         },
-        "required": ["region", "date"],
+        "required": ["region"],
     },
 )
 @safe_tool
-def get_wave_forecast(region, date, start_time=None, end_time=None):
+def get_wave_forecast(region, date=None, start_time=None, end_time=None):
     start_time = start_time or DEFAULT_START
     end_time = end_time or DEFAULT_END
+
+    # 기준 날짜가 없으면 오늘(한국 시간)로 조회하고, 응답에 그 사실을 밝힌다 (F3002)
+    date_defaulted = not date
+    if date_defaulted:
+        from datetime import timedelta, timezone
+        date = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
 
     if region not in REGIONS:
         return fail(ErrorCode.INVALID_INPUT, f"지원하는 지역은 {', '.join(REGIONS)}입니다.")
@@ -111,6 +117,8 @@ def get_wave_forecast(region, date, start_time=None, end_time=None):
         "date": date,
         "window": {"start": start_time, "end": end_time},
         "source": "Open-Meteo Marine",
-        "note": "같은 격자를 쓰는 스팟은 파고 예보 값이 동일합니다.",
+        "note": "같은 격자를 쓰는 스팟은 파고 예보 값이 동일합니다."
+                + (" 조회 날짜를 받지 못해 오늘 날짜로 조회했습니다." if date_defaulted else ""),
+        "date_defaulted": date_defaulted,
         "spots": result,
     })

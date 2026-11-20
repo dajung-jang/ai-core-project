@@ -1,6 +1,6 @@
 # 시나리오 5. Tool이 필요 없는 요청
 
-- 실행 시각: 2026-11-19 20:40:46
+- 실행 시각: 2026-11-20 10:09:29
 - 세션 id: `evidence-s5` (화면의 '실행 로그' 탭에서도 볼 수 있음)
 - 기대한 동작: Tool을 한 번도 호출하지 않고 안내/되묻기로 끝난다
 
@@ -8,15 +8,15 @@
 
 > 안녕! 이 서비스는 뭘 할 수 있어?
 
-- 의도: `None` — None
+- 의도: `need_info` — 서핑 계획에 필요한 정보가 아직 제공되지 않아 추가 정보 안내가 필요합니다.
 - 추출된 조건: `{"date": null, "start_time": null, "end_time": null, "region": null, "level": null, "end_by": null, "wants_places": []}`
 - 시도한 지역: [] / 재계획 0회
-- 처리 시간: 2.6초 / LLM 호출 1회
+- 처리 시간: 7.7초 / LLM 호출 1회
 
 ### 최종 응답
 
 ```text
-요청을 분석하지 못했습니다. 잠시 후 다시 시도해 주세요.
+계획을 세우려면 서핑하려는 날짜, 서핑 경험 수준(초보/중급/상급)을(를) 알려 주세요.
 ```
 
 ### Tool 호출 이력
@@ -34,9 +34,7 @@
 
 | seq | type | 내용 |
 |---|---|---|
-| 2 | error |  |
-| 3 | step_end | analyze 2574ms |
-| 5 | step_end | respond 0ms |
+| 2 | step_end | analyze 7673ms |
 
 <details><summary>원본 이벤트 JSON</summary>
 
@@ -44,7 +42,7 @@
 [
  {
   "seq": 1,
-  "ts": "2026-11-19T20:40:44.258+09:00",
+  "ts": "2026-11-20T10:09:21.848+09:00",
   "type": "step_start",
   "payload": {
    "step": "analyze"
@@ -52,40 +50,23 @@
  },
  {
   "seq": 2,
-  "ts": "2026-11-19T20:40:46.830+09:00",
-  "type": "error",
-  "payload": {
-   "step": "analyze",
-   "error": "RateLimitError"
-  }
- },
- {
-  "seq": 3,
-  "ts": "2026-11-19T20:40:46.832+09:00",
+  "ts": "2026-11-20T10:09:29.531+09:00",
   "type": "step_end",
   "payload": {
    "step": "analyze",
-   "elapsed_ms": 2574,
-   "intent": null,
-   "reason": "LLM 호출 실패"
-  }
- },
- {
-  "seq": 4,
-  "ts": "2026-11-19T20:40:46.835+09:00",
-  "type": "step_start",
-  "payload": {
-   "step": "respond"
-  }
- },
- {
-  "seq": 5,
-  "ts": "2026-11-19T20:40:46.836+09:00",
-  "type": "step_end",
-  "payload": {
-   "step": "respond",
-   "elapsed_ms": 0,
-   "length": 32
+   "elapsed_ms": 7673,
+   "intent": "need_info",
+   "reason": "서핑 계획에 필요한 정보가 아직 제공되지 않아 추가 정보 안내가 필요합니다.",
+   "conditions": {
+    "date": null,
+    "start_time": null,
+    "end_time": null,
+    "region": null,
+    "level": null,
+    "end_by": null,
+    "wants_places": []
+   },
+   "changed": []
   }
  }
 ]
@@ -95,4 +76,4 @@
 
 ## 기대한 동작과 실제 동작의 차이
 
-(직접 기록: 자동 확인이 모두 '일치'면 '차이 없음', 불일치가 있으면 원인과 수정 내용을 적는다)
+차이 없음. Tool 호출 0회, LLM 호출 1회로 안내 응답.

@@ -1,0 +1,1 @@
+scripts/test_places_quota.py:3:config.KAKAO_REST_API_KEY = "dummy"
